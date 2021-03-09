@@ -103,5 +103,8 @@ public class InvReferenceApiController {
         }
     }
 
+    private void sampleMethod(){
+
+    }
 
 }
