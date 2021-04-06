@@ -21,16 +21,18 @@ public class LocationsApiController {
     @PostMapping("api/locations/add")
     private Response addLocation(@ModelAttribute Location location) {
         try {
-            locationsRepo.save(location);
-            return Helper.createResponse("Location Saved.",true);
+            Location savedLocation=locationsRepo.save(location);
+            List<Location> list=new ArrayList<>();
+            list.add(savedLocation);
+            return Helper.createResponse("Location Saved.",true,list);
         }catch (Exception ex){
             return Helper.createResponse("An Error Occurred\n"+ex.toString(),false);
         }
     }
 
     @GetMapping("api/locations/view/{location_id}")
-    private Response getLocationById(@PathVariable("brand_id") int brandId){
-        Optional<Location> optionalLocation=locationsRepo.findById(brandId);
+    private Response getLocationById(@PathVariable("location_id") int locationId){
+        Optional<Location> optionalLocation=locationsRepo.findById(locationId);
         List<Location> list=new ArrayList<>();
         list.add(optionalLocation.get());
         return Helper.createResponse("Request Successful",true,list);

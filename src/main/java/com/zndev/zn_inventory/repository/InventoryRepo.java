@@ -18,7 +18,7 @@ public interface InventoryRepo extends JpaRepository<Inventory, Integer> {
 
     List<Inventory> findByItem_nameContainingAndLocationId(String name, int locationId, Pageable pageable);
 
-    Inventory findByLocationIdAndItem_nameOrItem_serialNumber(int location_id,String item_name,String serial_number);
+    //Inventory findByLocationIdAndItem_nameOrItem_serialNumber(int location_id,String item_name,String serial_number);
 
 
     // Counts

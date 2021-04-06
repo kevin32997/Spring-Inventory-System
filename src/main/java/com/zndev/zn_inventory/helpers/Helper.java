@@ -1,17 +1,12 @@
 package com.zndev.zn_inventory.helpers;
 
 import com.zndev.zn_inventory.models.other.Response;
-
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Random;
 
 public class Helper {
 
-
-
     public Helper(){
-
     }
 
     public static Response createResponse(String message, Boolean status){

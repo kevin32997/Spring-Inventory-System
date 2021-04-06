@@ -16,6 +16,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +50,21 @@ public class ItemsApiController {
             Item savedItem = itemsRepo.save(item);
             List<Item> items = new ArrayList<>();
 
+            try {
+                Optional<Brand> optionalBrand = brandsRepo.findById(savedItem.getBrandId());
+                savedItem.setBrandName(optionalBrand.get().getName());
+            } catch (NoSuchElementException ex) {
+                // do nothing or add action code
+                savedItem.setBrandName("No Data found");
+            }
+            try {
+                Optional<Type> optionalType = typesRepo.findById(savedItem.getTypeId());
+                savedItem.setTypeName(optionalType.get().getName());
+            } catch (NoSuchElementException ex) {
+                // do nothing or add action code
+                savedItem.setTypeName("No Data found");
+            }
+
             items.add(savedItem);
             return Helper.createResponse("Item Saved.", true, items);
         } catch (Exception ex) {
@@ -71,9 +87,12 @@ public class ItemsApiController {
         System.out.println("Download Uri: " + fileDownloadUri);
 
         // Update Item
+        /*
         Optional<Item> itemOptional = itemsRepo.findById(itemId);
         itemOptional.get().setImage(fileName);
         itemsRepo.save(itemOptional.get());
+
+         */
         return Helper.createResponse("Image update successful", true);
     }
 
@@ -151,9 +170,20 @@ public class ItemsApiController {
         return Helper.createResponse("Request Successfull", true, list);
     }
 
-    @GetMapping("api/items/page/{page}/{size}")
-    private Response getItemsByPage(@PathVariable("page") int page, @PathVariable("size") int size) {
-        Pageable pageRequest = PageRequest.of(page - 1, size);
+    @GetMapping("api/items/page/{page}/{size}/sort/{sortBy}/{direction}")
+    private Response getItemsByPage(@PathVariable("page") int page,
+                                    @PathVariable("size") int size,
+                                    @PathVariable("sortBy") String sortBy,
+                                    @PathVariable("direction") String direction) {
+
+        Sort sort = null;
+        if (direction.equals(ResourceHelper.DIRECTION_ASCENDING)) {
+            sort = Sort.by(Sort.Direction.ASC, sortBy);
+        } else if (direction.equals(ResourceHelper.DIRECTION_DESCENDING)) {
+            sort = Sort.by(Sort.Direction.DESC, sortBy);
+        }
+
+        Pageable pageRequest = PageRequest.of(page - 1, size, sort);
         Page<Item> itemPage = itemsRepo.findAll(pageRequest);
 
         for (Item item : itemPage.getContent()) {
@@ -218,8 +248,11 @@ public class ItemsApiController {
     }
 
     @GetMapping("api/items/search/{search_text}/{limit}")
-    private Response searchItem(@PathVariable("search_text") String searchText, @PathVariable("limit") int limit) {
-        List<Item> searchedItems = itemsRepo.search("%" + searchText + "%", limit);
+    private Response searchItem(@PathVariable("search_text") String searchText,
+                                @PathVariable("limit") int limit) {
+
+
+        List<Item> searchedItems = itemsRepo.findAllByNameContainsOrModelContains(searchText, searchText, PageRequest.of(0, limit));
         for (Item item : searchedItems) {
             try {
                 Optional<Brand> optionalBrand = brandsRepo.findById(item.getBrandId());
@@ -237,6 +270,15 @@ public class ItemsApiController {
                 item.setTypeName("No Data found");
             }
         }
+        /*
+                Sort sort = null;
+        if (sortBy.equals(ResourceHelper.DIRECTION_ASCENDING)) {
+            sort = Sort.by(Sort.Direction.ASC, sortBy);
+        } else if (sortBy.equals(ResourceHelper.DIRECTION_DESCENDING)) {
+            sort = Sort.by(Sort.Direction.DESC, sortBy);
+        }
+        Pageable pageable=PageRequest.of(0,limit, sort);
+         */
 
         return Helper.createResponse("Request Successful", true, searchedItems);
     }
@@ -279,15 +321,10 @@ public class ItemsApiController {
             Optional<Item> optionalItem = itemsRepo.findById(itemId);
             Item item = optionalItem.get();
             item.setBrandId(details.getBrandId());
-            item.setCode(details.getCode());
             item.setModel(details.getModel());
-            item.setPropertyNumber(details.getPropertyNumber());
-            item.setRemarks(details.getRemarks());
-            item.setSerialNumber(details.getSerialNumber());
             item.setTypeId(details.getTypeId());
             item.setDateUpdated(new Date());
             itemsRepo.save(item);
-
             List<Item> list = new ArrayList<>();
             list.add(item);
 
@@ -307,7 +344,6 @@ public class ItemsApiController {
             return Helper.createResponse("Error: " + ex.toString(), false);
         }
     }
-
 
 
     /*

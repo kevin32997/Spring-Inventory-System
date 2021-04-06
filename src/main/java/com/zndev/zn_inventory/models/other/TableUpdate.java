@@ -1,24 +1,23 @@
 package com.zndev.zn_inventory.models.other;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
 import java.util.Date;
+import javax.persistence.*;
 
-@Entity(name = "updates")
+@Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
-public class Updater {
+public class TableUpdate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    @Column(name="name")
-    private String name;
 
     @Column(name="code")
     private String code;
@@ -26,4 +25,7 @@ public class Updater {
     @Column(name="date_updated")
     private Date dateUpdated=new Date();
 
+    public TableUpdate(String code){
+            this.code=code;
+    }
 }

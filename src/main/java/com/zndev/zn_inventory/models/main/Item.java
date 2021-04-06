@@ -29,26 +29,14 @@ public class Item implements Serializable {
     @Column(name="model")
     private String model;
 
-    @Column(name="serial_number")
-    private String serialNumber;
-
     @Column(name="type_id")
     private int typeId;
 
+    @Column(name="description")
+    private String description;
+
     @Transient
     private String typeName;
-
-    @Column(name="code")
-    private String code;
-
-    @Column(name="property_number")
-    private String propertyNumber;
-
-    @Column(name="remarks")
-    private String remarks;
-
-    @Column(name="image")
-    private String image;
 
     @Column(name="created_by")
     private int createdBy;
